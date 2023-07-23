@@ -36,6 +36,53 @@ app.get('/api/persons', (req, res) => {
     res.json(persons)
 })
 
+app.get('/api/persons/:id', (req, res) => {
+    const id = Number(req.params.id)
+    const person = persons.find(person => person.id === id)
+    person ? res.json(person) : res.status(404).json({
+        message: `Person with id ${id} not found`
+    })
+})
+
+app.delete('/api/persons/:id', (req, res) => {
+    const id = Number(req.params.id)
+    persons = persons.filter(person => person.id !== id)
+    res.status(204).end()
+})
+
+// POST REQUEST
+const generateId = () => {
+    const MAX = 1e10
+    return Math.floor(Math.random() * MAX)
+}
+
+app.post('/api/persons', (req, res) => {
+    const body = req.body
+
+    if (!body.name){
+        return res.status(400).json({
+            message: "name missing"
+        })
+    } else if (!body.number){
+        return res.status(400).json({
+            message: "number missing"
+        })
+    } else if ((persons.map(person => person.name)).includes(body.name)){
+        return res.status(400).json({
+            message: "name must be unique"
+        })
+    } else {
+        const person = {
+            name: body.name,
+            number: body.number,
+            id: generateId(),
+        }
+        
+        persons = persons.concat(person)
+        res.json(person)
+    }
+})
+
 
 const PORT = 3001
 app.listen(PORT, () => {
