@@ -26,6 +26,19 @@ let persons = [
     }
 ]
 
+// Middleware function to log incoming requests
+const logger = (req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`)
+    next()
+}
+
+// Middleware function to handle unknown route
+const unknownEndpoint = (req, res) => {
+    res.status(404).send({ error: 'unknown endpoint' })
+}
+  
+app.use(logger);
+
 app.get('/info', (req, res) => {
     const now = new Date();
     res.send(`<p>Phonebook has info for ${persons.length} persons</p>
@@ -82,6 +95,9 @@ app.post('/api/persons', (req, res) => {
         res.json(person)
     }
 })
+
+app.use(unknownEndpoint)
+
 
 
 const PORT = 3001
