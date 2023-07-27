@@ -79,36 +79,34 @@ app.delete('/api/persons/:id', (req, res) => {
 
 // POST REQUEST
 app.post('/api/persons', (req, res) => {
-    const body = req.body
+    const body = req.body;
+    console.log(body);
 
     if (!body.name){
         return res.status(400).json({
             message: "name missing"
-        })
+        });
     } else if (!body.number){
         return res.status(400).json({
             message: "number missing"
-        })
-    } else if ((persons.map(person => person.name)).includes(body.name)){
-        return res.status(400).json({
-            message: "name must be unique"
-        })
+        });
     } else {
-        const person = {
+        const person = new Person({
             name: body.name,
             number: body.number
-        }
+        });
         
-        persons = persons.concat(person)
-        res.json(person)
+        person.save().then(savedPerson => {
+            res.json(savedPerson);
+        });
     }
-})
+});
 
-app.use(unknownEndpoint)
+app.use(unknownEndpoint);
 
 
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`)
-})
+});
