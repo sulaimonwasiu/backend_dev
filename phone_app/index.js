@@ -1,8 +1,11 @@
-const express = require('express')
-const app = express()
+require('dotenv').config();
+const express = require('express');
+const app = express();
+const Person = require('./models/person');
 
-app.use(express.json())
+app.use(express.json());
 
+/*
 let persons = [
     { 
       "id": 1,
@@ -26,15 +29,17 @@ let persons = [
     }
 ]
 
+*/
+
 // Middleware function to log incoming requests
 const logger = (req, res, next) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`)
-    next()
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    next();
 }
 
 // Middleware function to handle unknown route
 const unknownEndpoint = (req, res) => {
-    res.status(404).send({ error: 'unknown endpoint' })
+    res.status(404).send({ error: 'unknown endpoint' });
 }
   
 app.use(logger);
@@ -42,11 +47,14 @@ app.use(logger);
 app.get('/info', (req, res) => {
     const now = new Date();
     res.send(`<p>Phonebook has info for ${persons.length} persons</p>
-              <p>${now.toString()}</p>`)
+              <p>${now.toString()}</p>`);
 })
 
 app.get('/api/persons', (req, res) => {
-    res.json(persons)
+    Person.find({}).then(persons => {
+        res.json(persons);
+    })
+    
 })
 
 app.get('/api/persons/:id', (req, res) => {
@@ -100,7 +108,7 @@ app.use(unknownEndpoint)
 
 
 
-const PORT = 3001
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`)
 })
