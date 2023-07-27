@@ -58,10 +58,16 @@ app.get('/api/persons', (req, res) => {
 })
 
 app.get('/api/persons/:id', (req, res) => {
+    /*
     const id = Number(req.params.id)
     const person = persons.find(person => person.id === id)
     person ? res.json(person) : res.status(404).json({
         message: `Person with id ${id} not found`
+    })
+    */
+    const id = req.params.id;
+    Person.findById(id).then(person => {
+        res.json(person);
     })
 })
 
@@ -72,11 +78,6 @@ app.delete('/api/persons/:id', (req, res) => {
 })
 
 // POST REQUEST
-const generateId = () => {
-    const MAX = 1e10
-    return Math.floor(Math.random() * MAX)
-}
-
 app.post('/api/persons', (req, res) => {
     const body = req.body
 
@@ -95,8 +96,7 @@ app.post('/api/persons', (req, res) => {
     } else {
         const person = {
             name: body.name,
-            number: body.number,
-            id: generateId(),
+            number: body.number
         }
         
         persons = persons.concat(person)
