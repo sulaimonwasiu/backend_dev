@@ -57,7 +57,7 @@ app.get('/api/persons', (req, res) => {
     
 })
 
-app.get('/api/persons/:id', (req, res) => {
+app.get('/api/persons/:id', (req, res, next) => {
     /*
     const id = Number(req.params.id)
     const person = persons.find(person => person.id === id)
@@ -67,15 +67,29 @@ app.get('/api/persons/:id', (req, res) => {
     */
     const id = req.params.id;
     Person.findById(id).then(person => {
-        res.json(person);
-    })
-})
+        if (person){
+            res.json(person);
+        } else{
+            res.status(400).end();
+        }
+        
+    }).catch(error => next(error));
+});
 
-app.delete('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id)
-    persons = persons.filter(person => person.id !== id)
-    res.status(204).end()
-})
+app.delete('/api/persons/:id', (req, res, next) => {
+    const id = req.params.id;
+    Person.findByIdAndRemove(id).then(result => {
+        if (result)
+            res.status(204).end();
+        else
+            res.status(400).json({
+                message:`The person with id: ${id} no longer exists in the database`
+            })
+    }).catch(error => {
+        console.log(error);
+        next(error);
+    });
+});
 
 // POST REQUEST
 app.post('/api/persons', (req, res) => {
@@ -102,7 +116,37 @@ app.post('/api/persons', (req, res) => {
     }
 });
 
+// PUT: Update
+
+app.put('/api/persons/:id', (request, response, next) => {
+    const body = request.body
+  
+    const person = {
+      name: body.name,
+      number: body.number,
+    };
+  
+    Person.findByIdAndUpdate(request.params.id, person, { new: true })
+      .then(updatedPerson => {
+        response.json(updatedPerson)
+      })
+      .catch(error => next(error))
+  });
+
 app.use(unknownEndpoint);
+
+const errorHandler = (error, request, response, next) => {
+    console.error(error.message);
+  
+    if (error.name === 'CastError') {
+      return response.status(400).send({ error: 'malformatted id' });
+    } 
+  
+    next(error);
+}
+  
+// this has to be the last loaded middleware.
+app.use(errorHandler);
 
 
 
