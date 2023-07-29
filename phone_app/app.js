@@ -8,7 +8,6 @@ const mongoose = require('mongoose');
 const infoRouter = require('./controllers/info');
 
 
-
 mongoose.set('strictQuery', false);
 async function dbConnect(){
     try{
