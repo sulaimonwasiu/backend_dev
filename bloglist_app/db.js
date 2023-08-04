@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const config = require('./utils/config')
  
 
-const dBconnect = async () => {
+const connect = async () => {
   try{
     await mongoose.connect(config.MONGODB_URI)
     console.log('Database connected!')
@@ -11,5 +11,16 @@ const dBconnect = async () => {
   }
 }
 
+const disConnect = async () => {
+  try{
+    await mongoose.connection.close()
+    console.log('Database disconnected!')
+  } catch(error){
+    console.error('Not disconnected!', error.message)
+  }
+}
 
-module.exports = dBconnect
+
+
+
+module.exports = {connect, disConnect}
